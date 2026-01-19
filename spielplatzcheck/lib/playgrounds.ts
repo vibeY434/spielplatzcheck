@@ -273,7 +273,24 @@ export async function fetchPlaygrounds(): Promise<Playground[]> {
       })
       .filter((p: Playground | null): p is Playground => p !== null);
 
-    return playgrounds;
+    // Deduplizierung: Entferne Spielplätze die sehr nah beieinander sind (< 20m)
+    // Das passiert wenn ein Spielplatz sowohl als node als auch als way existiert
+    const deduplicatedPlaygrounds: Playground[] = [];
+    const DUPLICATE_THRESHOLD = 0.0002; // ca. 20 Meter
+
+    for (const playground of playgrounds) {
+      const isDuplicate = deduplicatedPlaygrounds.some((existing) => {
+        const latDiff = Math.abs(existing.lat - playground.lat);
+        const lonDiff = Math.abs(existing.lon - playground.lon);
+        return latDiff < DUPLICATE_THRESHOLD && lonDiff < DUPLICATE_THRESHOLD;
+      });
+
+      if (!isDuplicate) {
+        deduplicatedPlaygrounds.push(playground);
+      }
+    }
+
+    return deduplicatedPlaygrounds;
   } catch (error) {
     console.error("Fehler beim Laden der Spielplätze:", error);
     throw error;
