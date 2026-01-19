@@ -89,7 +89,7 @@ const createPopupContent = (playground: Playground): string => {
       }
       ${accessibleBadge}
       <a 
-        href="https://www.openstreetmap.org/node/${playground.id}" 
+        href="https://www.openstreetmap.org/${playground.osmType}/${playground.id}" 
         target="_blank" 
         rel="noopener noreferrer"
         style="

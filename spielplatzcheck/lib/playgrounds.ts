@@ -1,6 +1,7 @@
 // Types für Spielplatz-Daten
 export interface Playground {
   id: number;
+  osmType: "node" | "way" | "relation"; // OSM-Typ für korrekte Verlinkung
   name: string;
   lat: number;
   lon: number;
@@ -223,6 +224,16 @@ export async function fetchPlaygrounds(): Promise<Playground[]> {
           return null;
         }
 
+        // WICHTIG: Nur Spielplätze innerhalb von Mainz akzeptieren
+        if (
+          lat < MAINZ_BBOX.south ||
+          lat > MAINZ_BBOX.north ||
+          lon < MAINZ_BBOX.west ||
+          lon > MAINZ_BBOX.east
+        ) {
+          return null;
+        }
+
         const tags = element.tags || {};
         const equipment = extractEquipment(tags);
 
@@ -250,6 +261,7 @@ export async function fetchPlaygrounds(): Promise<Playground[]> {
 
         return {
           id: element.id,
+          osmType: element.type as "node" | "way" | "relation",
           name,
           lat,
           lon,
